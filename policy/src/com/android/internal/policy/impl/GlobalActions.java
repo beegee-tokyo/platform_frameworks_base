@@ -72,6 +72,17 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**** BEEGEE_PATCH_START ****/
+/**
+* Needed for takeScreenshot
+*/
+import android.content.ServiceConnection;
+import android.content.ComponentName;
+import android.os.IBinder;
+import android.os.Messenger;
+import android.os.RemoteException;
+/**** BEEGEE_PATCH_END ****/
+
 /**
  * Helper to show the global actions dialog.  Each item is an {@link Action} that
  * may show depending on whether the keyguard is showing, and whether the device
@@ -259,6 +270,70 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                     return true;
                 }
             });
+
+/**** BEEGEE_PATCH_START ****/
+		// next: reboot
+		mItems.add(
+			new SinglePressAction(
+					com.android.internal.R.drawable.ic_lock_reboot, 
+					com.android.internal.R.string.global_action_reboot) {
+				public void onPress() {
+					mWindowManagerFuncs.reboot("");
+				}
+
+				public boolean showDuringKeyguard() {
+					return true;
+				}
+
+				public boolean showBeforeProvisioning() {
+					return true;
+				}
+			}
+		);
+
+		// next: recovery
+		mItems.add(
+			new SinglePressAction(
+					com.android.internal.R.drawable.bg_recovery, 
+					com.android.internal.R.string.global_action_recovery) {
+				public void onPress() {
+					mWindowManagerFuncs.reboot("recovery");
+				}
+
+				public boolean onLongPress() {
+					mWindowManagerFuncs.reboot("bootloader");
+					return true;
+				}
+
+				public boolean showDuringKeyguard() {
+					return true;
+				}
+
+				public boolean showBeforeProvisioning() {
+					return true;
+				}
+			}
+		);
+
+		// next: screenshot
+		mItems.add(
+			new SinglePressAction(
+					com.android.internal.R.drawable.ic_lock_screenshot, 
+					com.android.internal.R.string.global_action_screenshot) {
+				public void onPress() {
+						takeScreenshot();
+				}
+
+				public boolean showDuringKeyguard() {
+						return true;
+				}
+
+				public boolean showBeforeProvisioning() {
+						return true;
+				}
+			}
+		);
+/**** BEEGEE_PATCH_END ****/
 
         // next: airplane mode
         mItems.add(mAirplaneModeOn);
@@ -1045,4 +1120,89 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             return super.onKeyUp(keyCode, event);
         }
     }
+	
+/**** BEEGEE_PATCH_START ****/
+    /**
+     * functions needed for taking screenhots.
+     * This leverages the built in ICS screenshot functionality
+     */
+    final Object mScreenshotLock = new Object();
+    ServiceConnection mScreenshotConnection = null;
+
+    final Runnable mScreenshotTimeout = new Runnable() {
+        @Override public void run() {
+            synchronized (mScreenshotLock) {
+                if (mScreenshotConnection != null) {
+                    mContext.unbindService(mScreenshotConnection);
+                    mScreenshotConnection = null;
+                }
+            }
+        }
+    };
+
+	private void takeScreenshot() {
+        synchronized (mScreenshotLock) {
+            if (mScreenshotConnection != null) {
+                return;
+            }
+            ComponentName cn = new ComponentName("com.android.systemui",
+                    "com.android.systemui.screenshot.TakeScreenshotService");
+            Intent intent = new Intent();
+            intent.setComponent(cn);
+            ServiceConnection conn = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    synchronized (mScreenshotLock) {
+                        if (mScreenshotConnection != this) {
+                            return;
+                        }
+                        Messenger messenger = new Messenger(service);
+                        Message msg = Message.obtain(null, 1);
+                        final ServiceConnection myConn = this;
+                        Handler h = new Handler(mHandler.getLooper()) {
+                            @Override
+                            public void handleMessage(Message msg) {
+                                synchronized (mScreenshotLock) {
+                                    if (mScreenshotConnection == myConn) {
+                                        mContext.unbindService(mScreenshotConnection);
+                                        mScreenshotConnection = null;
+                                        mHandler.removeCallbacks(mScreenshotTimeout);
+                                    }
+                                }
+                            }
+                        };
+                        msg.replyTo = new Messenger(h);
+                        msg.arg1 = msg.arg2 = 0;
+
+                        /*  remove for the time being
+                        if (mStatusBar != null && mStatusBar.isVisibleLw())
+                            msg.arg1 = 1;
+                        if (mNavigationBar != null && mNavigationBar.isVisibleLw())
+                            msg.arg2 = 1;
+                         */
+
+                        /* wait for the dialog box to close */
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ie) {
+                        }
+
+                        /* take the screenshot */
+                        try {
+                            messenger.send(msg);
+                        } catch (RemoteException e) {
+                        }
+                    }
+                }
+                @Override
+                public void onServiceDisconnected(ComponentName name) {}
+            };
+
+            if (mContext.bindServiceAsUser(intent, conn, Context.BIND_AUTO_CREATE, UserHandle.CURRENT)) {
+                mScreenshotConnection = conn;
+                mHandler.postDelayed(mScreenshotTimeout, 10000);
+            }
+        }
+    }
+/**** BEEGEE_PATCH_END ****/
 }

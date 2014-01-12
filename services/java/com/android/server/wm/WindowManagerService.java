@@ -5183,6 +5183,17 @@ public class WindowManagerService extends IWindowManager.Stub
         ShutdownThread.rebootSafeMode(mContext, confirm);
     }
 
+/**** BEEGEE_CHANGE_START ****/
+// In this ROM all reboot options are in the 
+// main power menu, not in a submenu.
+// mWindowManagerFuncs.reboot needs to know what kind
+// of reboot we want to do ==> reboot, recovery, bootloader !
+    // Called by window manager policy.  Not exposed externally.
+    @Override
+    public void reboot(String reason) {
+        ShutdownThread.reboot(mContext, reason, true);
+    }
+/**** BEEGEE_CHANGE_END ****/
     @Override
     public void setInputFilter(IInputFilter filter) {
         if (!checkCallingPermission(android.Manifest.permission.FILTER_EVENTS, "setInputFilter()")) {

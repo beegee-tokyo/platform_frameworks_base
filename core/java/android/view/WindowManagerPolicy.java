@@ -417,6 +417,9 @@ public interface WindowManagerPolicy {
 
         public void shutdown(boolean confirm);
         public void rebootSafeMode(boolean confirm);
+/**** BEEGEE_CHANGE_START ****/
+        public void reboot(String reason);
+/**** BEEGEE_CHANGE_END ****/
 
         /**
          * Return the window manager lock needed to correctly call "Lw" methods.

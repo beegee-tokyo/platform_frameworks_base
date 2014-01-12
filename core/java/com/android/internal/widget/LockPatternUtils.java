@@ -138,7 +138,10 @@ public class LockPatternUtils {
     public final static String LOCKSCREEN_POWER_BUTTON_INSTANTLY_LOCKS
             = "lockscreen.power_button_instantly_locks";
     public final static String LOCKSCREEN_WIDGETS_ENABLED = "lockscreen.widgets_enabled";
-
+/**** BEEGEE_CHANGE_START ****/
+    public final static String LOCKSCREEN_QUICK_UNLOCK_CONTROL
+            = "lockscreen.quick_unlock_control";
+/**** BEEGEE_CHANGE_END ****/
     public final static String PASSWORD_HISTORY_KEY = "lockscreen.passwordhistory";
 
     private static final String LOCK_SCREEN_OWNER_INFO = Settings.Secure.LOCK_SCREEN_OWNER_INFO;
@@ -1311,7 +1314,20 @@ public class LockPatternUtils {
         mContext.startActivity(intent);
     }
 
-    public void setPowerButtonInstantlyLocks(boolean enabled) {
+/**** BEEGEE_CHANGE_START ****/
+    public void setLockScreenQUickUnlock(boolean enabled) {
+//Log.e("beegee", "LockPatternUtils.java -> setLockScreenQUickUnlock " + enabled);
+			setBoolean(LOCKSCREEN_QUICK_UNLOCK_CONTROL, enabled);
+    }
+ 
+    public boolean getLockScreenQUickUnlock() {
+//boolean logstat = getBoolean(LOCKSCREEN_QUICK_UNLOCK_CONTROL, true);
+//Log.e("beegee", "LockPatternUtils.java -> getLockScreenQUickUnlock " + logstat);
+			return getBoolean(LOCKSCREEN_QUICK_UNLOCK_CONTROL, true);
+    }
+/**** BEEGEE_CHANGE_END ****/
+
+public void setPowerButtonInstantlyLocks(boolean enabled) {
         setBoolean(LOCKSCREEN_POWER_BUTTON_INSTANTLY_LOCKS, enabled);
     }
 

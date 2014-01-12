@@ -21,6 +21,10 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
+/**** BEEGEE_CHANGE_START ****/
+import android.provider.Settings;
+import android.util.Log;
+/**** BEEGEE_CHANGE_END ****/
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -46,6 +50,9 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
     protected View mEcaView;
     private Drawable mBouncerFrame;
     protected boolean mEnableHaptics;
+/**** BEEGEE_CHANGE_START ****/
+    private boolean mQuickUnlock;
+/**** BEEGEE_CHANGE_END ****/
 
     // To avoid accidental lockout due to events while the device in in the pocket, ignore
     // any passwords with length less than or equal to this length.
@@ -115,6 +122,11 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
             }
         });
 
+/**** BEEGEE_CHANGE_START ****/
+        mQuickUnlock = mLockPatternUtils.getLockScreenQUickUnlock();
+//Log.e("beegee", "KeyguardAbsKeyInputView.java -> mQuickUnlock " + mQuickUnlock);
+/**** BEEGEE_CHANGE_END ****/
+
         mPasswordEntry.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
@@ -126,6 +138,16 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
                 if (mCallback != null) {
                     mCallback.userActivity(0);
                 }
+/**** BEEGEE_CHANGE_START ****/
+                if (mQuickUnlock) {
+                    String entry = mPasswordEntry.getText().toString();
+                    if (entry.length() > MINIMUM_PASSWORD_LENGTH_BEFORE_REPORT &&
+                            mLockPatternUtils.checkPassword(entry)) {
+                        mCallback.reportSuccessfulUnlockAttempt();
+                        mCallback.dismiss(true);
+                    }
+                }
+/**** BEEGEE_CHANGE_END ****/
             }
         });
         mSecurityMessageDisplay = new KeyguardMessageArea.Helper(this);

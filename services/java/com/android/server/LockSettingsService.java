@@ -516,6 +516,9 @@ public class LockSettingsService extends ILockSettings.Stub {
         LockPatternUtils.BIOMETRIC_WEAK_EVER_CHOSEN_KEY,
         LockPatternUtils.LOCKSCREEN_POWER_BUTTON_INSTANTLY_LOCKS,
         LockPatternUtils.PASSWORD_HISTORY_KEY,
+/**** BEEGEE_CHANGE_START ****/
+        LockPatternUtils.LOCKSCREEN_QUICK_UNLOCK_CONTROL,
+/**** BEEGEE_CHANGE_END ****/
         Secure.LOCK_PATTERN_ENABLED,
         Secure.LOCK_BIOMETRIC_WEAK_FLAGS,
         Secure.LOCK_PATTERN_VISIBLE,
