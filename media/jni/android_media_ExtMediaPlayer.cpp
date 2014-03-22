@@ -109,8 +109,12 @@ void JNIExtMediaPlayerListener::notify(int msg, int ext1, int ext2, const Parcel
     if (mParcel != NULL)
     {
       if((extfields.ext_post_event != NULL) &&
-         ((msg == MEDIA_PREPARED) || (msg == MEDIA_TIMED_TEXT) || (msg == MEDIA_QOE)))
-      {
+#ifndef HAVE_PRE_KITKAT_AUDIO_BLOB
+			((msg == MEDIA_PREPARED) || (msg == MEDIA_TIMED_TEXT) || (msg == MEDIA_QOE)))
+#else
+			((msg == MEDIA_PREPARED) || (msg == MEDIA_TIMED_TEXT)))
+#endif
+		{
         ALOGE("JNIExtMediaPlayerListener::notify calling ext_post_event");
         if (ext2 == 1 && (msg == MEDIA_TIMED_TEXT))
         { // only in case of codec config frame
@@ -144,7 +148,11 @@ void JNIExtMediaPlayerListener::notify(int msg, int ext1, int ext2, const Parcel
   else
   {
     if((extfields.ext_post_event != NULL) &&
+#ifndef HAVE_PRE_KITKAT_AUDIO_BLOB
        ((msg == MEDIA_PREPARED) || (msg == MEDIA_TIMED_TEXT) ||(msg == MEDIA_QOE)))
+#else
+       ((msg == MEDIA_PREPARED) || (msg == MEDIA_TIMED_TEXT)))
+#endif
     {
       ALOGD("JNIExtMediaPlayerListener::notify calling ext_post_events");
       env->CallStaticVoidMethod(mClass, extfields.ext_post_event, mObject, msg, ext1, ext2, NULL);
