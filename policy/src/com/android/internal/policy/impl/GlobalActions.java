@@ -72,7 +72,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-/**** BEEGEE_PATCH_START ****/
+/**** BEEGEE_CHANGE_START ****/
 /**
 * Needed for takeScreenshot
 */
@@ -81,7 +81,7 @@ import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.Messenger;
 import android.os.RemoteException;
-/**** BEEGEE_PATCH_END ****/
+/**** BEEGEE_CHANGE_END ****/
 
 /**
  * Helper to show the global actions dialog.  Each item is an {@link Action} that
@@ -271,7 +271,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 }
             });
 
-/**** BEEGEE_PATCH_START ****/
+/**** BEEGEE_CHANGE_START ****/
 		// next: reboot
 		mItems.add(
 			new SinglePressAction(
@@ -333,7 +333,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 				}
 			}
 		);
-/**** BEEGEE_PATCH_END ****/
+/**** BEEGEE_CHANGE_END ****/
 
         // next: airplane mode
         mItems.add(mAirplaneModeOn);
@@ -1121,7 +1121,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
     }
 	
-/**** BEEGEE_PATCH_START ****/
+/**** BEEGEE_CHANGE_START ****/
     /**
      * functions needed for taking screenhots.
      * This leverages the built in ICS screenshot functionality
@@ -1204,5 +1204,5 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             }
         }
     }
-/**** BEEGEE_PATCH_END ****/
+/**** BEEGEE_CHANGE_END ****/
 }
